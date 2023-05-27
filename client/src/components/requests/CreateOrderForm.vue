@@ -30,7 +30,7 @@
                     v-model="car"
                     :options="client?.cars"
                     placeholder="Выберите авто клиента"
-                    :optionLabel="car => `${car.brang} ${car.model} ${car.number}`"
+                    :optionLabel="car => `${car.brand} ${car.model} ${car.number}`"
                 />
             </div>
             <div class="field">
@@ -93,7 +93,7 @@
 import { useClientsStore } from '@/store/clients';
 import { useOrdersStore } from '@/store/orders';
 import { mapStores } from 'pinia';
-import { dateToString } from '@/utils/DateUtils';
+import { dateToString, getDateOfString } from '@/utils/DateUtils';
 
 export default {
     name: 'CreateOrderForm',
@@ -111,6 +111,7 @@ export default {
             endWork: new Date(),
             status: null,
             carBox: null,
+            code: null,
         };
     },
     methods: {
@@ -121,14 +122,33 @@ export default {
         },
         setCell(cell) {
             this.carBox = this.ordersStore.getCarBoxByCode(cell[0]);
-            const minute = cell[1].split(':')[1];
-            const hour = cell[1].split(':')[0];
+            const minute = Number(cell[1].split(':')[1]);
+            const hour = Number(cell[1].split(':')[0]);
             this.startWork = new Date(new Date(this.ordersStore.date).setHours(hour, minute));
-            this.endWork = new Date(this.ordersStore.date);
+            this.endWork = new Date(this.ordersStore.date.setHours(hour + 1, minute));
+        },
+        setOrderData(order, carBox) {
+            const {client, car, dateStart, dateEnd, status, code} = order;
+            this.code = code;
+            this.client = this.clientsStore.getClientByCode(client.code);
+            this.car = this.client.cars.find(item => item.code === car.code);
+            this.startWork = getDateOfString(dateStart);
+            this.endWork = getDateOfString(dateEnd);
+            this.status = status;
+            this.carBox = carBox;
+        },
+        clearOrderData() {
+            this.code = null;
+            this.client = null;
+            this.car = null;
+            this.startWork = null;
+            this.endWork = null;
+            this.status = null;
+            this.carBox = null;
         },
         async save() {
             const order = {
-                code: null,
+                code: this.code,
                 carBoxCode: this.carBox.code,
                 dateStart: dateToString(this.startWork),
                 dateEnd: dateToString(this.endWork),

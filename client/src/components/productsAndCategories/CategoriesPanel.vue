@@ -96,32 +96,16 @@ export default {
             {
                 key:1,
                 data: {
-                    сategory: "a",
+                    сategory: "Ходовая часть",
                     quantity: 1,
                 }
             },
             {
                 key:2,
                 data: {
-                    сategory: "b",
+                    сategory: "Резина",
                     quantity: 2,
                 }
-            },
-            {
-                key:3,
-                data: {
-                    сategory: "c",
-                    quantity: 3,
-                },
-                children: [
-                {
-                    key:22,
-                    data: {
-                        сategory: "bb",
-                        quantity: 22,
-                    }
-                },
-                ]
             },
         ]
     }

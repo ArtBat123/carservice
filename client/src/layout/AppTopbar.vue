@@ -31,7 +31,7 @@
                 shape="circle"
             >
             </p-avatar>
-            <span>User</span>
+            <span>Artem</span>
         </template>
     </p-toolbar>
 </template>

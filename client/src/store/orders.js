@@ -4,7 +4,6 @@ import { dateToDayString, dateToString } from '@/utils/DateUtils';
 
 export const useOrdersStore = defineStore('orders', {
     state: () => ({
-        requestsList: [],
         carBoxesList: [],
         boxSchedulesList: [],
         date: new Date(),        // Дата расписания
@@ -13,16 +12,16 @@ export const useOrdersStore = defineStore('orders', {
     getters: {
         getCarBoxByCode(state) {
             return (code) => state.carBoxesList.find(item => item.code === code);
-        }
+        },
+        getOrderByCode(state) {
+            return (carBoxcode, orderCode) => {
+                const carBox = state.boxSchedulesList.find(item => item.code === carBoxcode);
+                return carBox.schedule.find(item => item.code === orderCode);
+            };
+        },
     },
 
     actions: {
-        getRequests() {
-            this.requestsList = [];
-        },
-        addRequest(request) {
-            this.requestsList.push(request);
-        },
         async getCarBoxes() {
             this.carBoxesList = await ReqExec.get('rpc/web_car_box_api/get_car_boxes');
         },

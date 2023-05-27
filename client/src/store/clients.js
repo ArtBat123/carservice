@@ -1,10 +1,20 @@
 import { defineStore } from 'pinia';
 import ReqExec from '@/services/ReqExec';
+import WarehouseItem from '@/model/WarehouseItem';
 
 export const useClientsStore = defineStore('clients', {
     state: () => ({
+        /**
+         * @type {Array.<WarehouseItem>}
+         */
         clients: [],
     }),
+
+    getters: {
+        getClientByCode(state) {
+            return (code) => state.clients.find(item => item.code === code);
+        },
+    },
 
     actions: {
         async getClients() {

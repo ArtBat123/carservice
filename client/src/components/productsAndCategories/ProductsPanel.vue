@@ -43,8 +43,6 @@
             </template>
             <p-column selectionMode="multiple"></p-column>
             <p-column field="vendorСode" header="Артикул"></p-column>
-            <p-column field="code" header="Код"></p-column>
-            <p-column field="barcode" header="Штрихкод"></p-column>
             <p-column field="name" header="Название"></p-column>
         </p-data-table>
         <p-sidebar v-model:visible="visibleSidebar" :baseZIndex="10000" position="right" class="p-sidebar-md">
@@ -79,6 +77,14 @@
                     />
                 </div>
                 <div class="field">
+                    <label for="name">Производитель</label>
+                    <p-input-text
+                        autofocus
+                        v-model="newProduct.name"
+                        class="p-inputtext-sm"
+                    />
+                </div>
+                <div class="field">
                     <label for="name">Описание</label>
                     <p-input-text
                         autofocus
@@ -87,13 +93,21 @@
                     />
                 </div>
                 <div class="field">
+                    <label for="name">Цена</label>
+                    <p-input-text
+                        autofocus
+                        v-model="newProduct.description"
+                        class="p-inputtext-sm"
+                    />
+                </div>
+                <!-- <div class="field">
                     <label for="name">Код</label>
                     <p-input-text
                         autofocus
                         v-model="newProduct.code"
                         class="p-inputtext-sm"
                     />
-                </div>
+                </div> -->
                 <div class="field">
                     <label for="name">Артикул</label>
                     <p-input-text
@@ -102,9 +116,9 @@
                         class="p-inputtext-sm"
                     />
                 </div>
-                <div class="field">
+                <!-- <div class="field">
                     <label for="name">Штрихкод</label>
-                </div>
+                </div> -->
                 <div>
                     <p-button
                         label="Добавить"

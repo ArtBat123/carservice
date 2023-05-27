@@ -1,7 +1,7 @@
 <template>
     <div class="card">
         <p-toolbar>
-            <template #start>
+            <!-- <template #start>
                 <p-button
                     @click="addingDialog = true"
                     label="Добавить"
@@ -13,8 +13,8 @@
                     icon="pi pi-trash"
                     class="ml-3"
                 />
-            </template>
-            <template #end>
+            </template> -->
+            <template #start>
                 <span class="p-input-icon-left p-input-icon-right">
                     <i class="pi pi-search"></i>
                     <p-input-text
@@ -28,18 +28,20 @@
                     ></i>
                 </span>
             </template>
+            <template #end>
+                <p-button label="Экспорт" icon="pi pi-upload" severity="help" @click="exportExcel()"  />
+            </template>
         </p-toolbar>
         <p-data-table
             :value="warehouseStore.warehouseItemList"
             v-model:selection="selectedItems"
             v-model:filters="filterObj"
             v-model:contextMenuSelection="contextMenuSelection"
+            ref="dt"
             @rowContextmenu="onRowContextMenu"
         >
-            <p-column selectionMode="multiple"></p-column>
-            <p-column field="code" header="Code" :sortable="true"></p-column>
-            <p-column field="count" header="Count" :sortable="true"></p-column>
-            <p-column field="name" header="Name" :sortable="true"></p-column>
+            <p-column field="name" header="Наименование" :sortable="true"></p-column>
+            <p-column field="count" header="Остаток" :sortable="true"></p-column>
         </p-data-table>
         <p-context-menu :model="menuModel" ref="cm" />
         <p-dialog
@@ -114,7 +116,6 @@
 import { mapStores } from 'pinia';
 import { useWarehouseStore } from '../store/warehouse';
 import { FilterMatchMode } from 'primevue/api';
-
 export default {
     name: "WarehousePage",
 
@@ -153,6 +154,34 @@ export default {
             };
 
             this.addingDialog = false;
+        },
+        exportCSV() {
+            this.$refs.dt.exportCSV();
+        },
+        exportExcel() {
+            import('xlsx').then((xlsx) => {
+                const worksheet = xlsx.utils.json_to_sheet(this.warehouseStore.warehouseItemList);
+                const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
+                const excelBuffer = xlsx.write(workbook, {
+                    bookType: 'xlsx',
+                    type: 'array'
+                });
+
+                this.saveAsExcelFile(excelBuffer, 'products');
+            });
+        },
+        saveAsExcelFile(buffer, fileName) {
+            import('file-saver').then((module) => {
+                if (module && module.default) {
+                    let EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+                    let EXCEL_EXTENSION = '.xlsx';
+                    const data = new Blob([buffer], {
+                        type: EXCEL_TYPE
+                    });
+
+                    module.default.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
+                }
+            });
         },
         deleteItem() {
             this.warehouseStore.deleteWarehouseItem(this.contextMenuSelection);

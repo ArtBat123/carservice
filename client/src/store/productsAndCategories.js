@@ -44,17 +44,15 @@ export const useProductsAndCategoriesStore = defineStore('productsAndCategories'
             this.productsList = [
                 {
                     id: 1,
-                    vendorСode: 'ads',
-                    code: 1,
-                    barcode: 12,
-                    name: 'asddas'
+                    vendorСode: '643−2-BLK',
+                    name: 'Летние шины PIRELLI CINTURATO P7',
+                    count: 21
                 },
                 {
                     id: 2,
-                    vendorСode: 'ads',
-                    code: 1,
-                    barcode: 12,
-                    name: 'asddas'
+                    vendorСode: '443−2-BLK',
+                    name: 'Летние шины KUMHO ES31',
+                    count: 21
                 }
             ];
         }

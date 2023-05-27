@@ -41,6 +41,16 @@ const router = createRouter({
                     name: 'clients',
                     component: () => import('@/views/ClientsPage.vue'),
                 },
+                {
+                    path: '/auth',
+                    name: 'auth',
+                    component: () => import('@/views/AuthPage.vue'),
+                },
+                {
+                    path: '/employees',
+                    name: 'employees',
+                    component: () => import('@/views/EmployeesPage.vue'),
+                }
             ]
         }
     ]

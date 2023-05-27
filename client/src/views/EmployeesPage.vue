@@ -2,7 +2,7 @@
     <div class="card">
         <p-toolbar>
             <template #start>
-                <div class="text-6xl font-bold mr-4">Клиенты</div>
+                <div class="text-6xl font-bold mr-4">Сотрудники</div>
                 <p-button
                     @click="visibleSidebar = true"
                     label="Добавить"
@@ -37,18 +37,35 @@
             v-model:contextMenuSelection="contextMenuSelection"
             @rowContextmenu="onRowContextMenu"
         >
+            <template #header>
+                <div style="text-align:left">
+                    <p-multi-select
+                        v-model="selectedColumns"
+                        class="p-inputtext-sm"
+                        :options="columns"
+                        optionLabel="header"
+                        placeholder="Выбрать столбцы"
+                        :maxSelectedLabels="3"
+                        selectedItemsLabel="{0} столбцов выбрано"
+                    />
+                </div>
+            </template>
             <p-column selectionMode="multiple"></p-column>
-            <p-column field="fullName" header="ФИО" :sortable="true"></p-column>
-            <p-column field="phone" header="Телефон" :sortable="true"></p-column>
-            <p-column field="birthday" header="Дата рождения" :sortable="true"></p-column>
-            <p-column field="cars" header="Автомобили">
-                <template #body="{data}">
-                    <p-chip v-for="car in data.cars" class="p-3 mr-2">
-                        <div>
-                            {{ car.brand + ' ' + car.model }} <br>
-                            Номер: {{ car.number }}
-                        </div>
-                    </p-chip>
+            <p-column
+                v-for="col in selectedColumns"
+                :field="col.field"
+                :header="col.header"
+                :sortable="true"
+            >
+                <template v-if="col.field === 'password'" #body="slotProps">
+                    <div class="flex align-items-center">
+                        <strong>*******</strong>
+                        <p-button
+                            icon="pi pi-eye"
+                            class="p-button-rounded p-button-text p-button-lg mr-2"
+                            style="width: 40px; height: 40px"
+                        ></p-button>
+                    </div>
                 </template>
             </p-column>
         </p-data-table>
@@ -175,7 +192,7 @@
             <p-accordion>
                 <p-accordion-tab
                     v-for="car in currentItem.cars"
-                    :header="car.brand + ' ' + car.model"
+                    :header="car.brand + car.model"
                     headerClass="accordion-tab-header"
                 >
                     <div class="text-500 flex">
@@ -213,7 +230,7 @@ import { FilterMatchMode } from 'primevue/api';
 import { toRaw } from 'vue';
 
 export default {
-    name: "ClientsPage",
+    name: "EmployeesPage",
 
     data() {
         return {
@@ -241,6 +258,8 @@ export default {
             visibleSidebar: false,
             isVisibleAddingCar: false,
             car: {},
+            columns: [],
+            selectedColumns: [],
         }
     },
 
@@ -308,7 +327,54 @@ export default {
 
     created() {
         this.initFilter();
-        this.clientsStore.getClients();
+        this.columns = [
+            {field: 'fullName', header: 'ФИО'},
+            {field: 'phone',    header: 'Телефон'},
+            {field: 'position', header: 'Должность'},
+            {field: 'birthday', header: 'Дата рождения'},
+            {field: 'login',    header: 'Логин'},
+            {field: 'password', header: 'Пароль'},
+            {field: 'adress',   header: 'Адрес'},
+        ],
+        this.selectedColumns = this.columns;
+        this.clientsStore.clients = [
+            {
+                fullName: 'Петров Петр Петрович',
+                phone: '79183855532',
+                position: 'Администратор',
+                birthday: '02.12.2001',
+                login: 'petrov01',
+                password: 'petrov01',
+                adress: 'Краснодар, ул.Стасова д.10 кв. 112',
+            },
+            {
+                fullName: 'Иванов Петр Петрович',
+                phone: '79183855535',
+                position: 'Администратор',
+                birthday: '02.12.2001',
+                login: 'petrov02',
+                password: 'petrov02',
+                adress: 'Краснодар, ул.Стасова д.10 кв. 113',
+            },
+            {
+                fullName: 'Батрак Петр Петрович',
+                phone: '79183855536',
+                position: 'Мастер',
+                birthday: '02.12.2001',
+                login: 'petrov03',
+                password: 'petrov03',
+                adress: 'Краснодар, ул.Стасова д.10 кв. 111',
+            },
+            {
+                fullName: 'Захаров Петр Петрович',
+                phone: '79183855537',
+                position: 'Мастер',
+                birthday: '02.12.2001',
+                login: 'petrov07',
+                password: 'petrov07',
+                adress: 'Краснодар, ул.Стасова д.10 кв. 117',
+            }
+        ]
     },
 }
 </script>

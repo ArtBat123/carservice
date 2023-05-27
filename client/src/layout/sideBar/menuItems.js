@@ -37,6 +37,10 @@ export default [
                 label: 'Клиенты',
                 to: '/clients',
             },
+            {
+                label: 'Сотрудники',
+                to: '/employees'
+            },
         ],
     },
 ];

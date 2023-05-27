@@ -5,10 +5,16 @@
             class="cars-schedules"
         >
             <div class="cars-schedules-time-col">
+                <div class="flex justify-content-between align-items-center mx-1" style="height: 40px;">
+                    <i class="pi pi-caret-left text-400 hover:text-primary-500"></i>
+                    <i class="pi pi-caret-right text-400 hover:text-primary-500"></i>
+                </div>
                 <div
                     v-for="hour in ordersStore.boxSchedulesList[0].schedule.map(item => item.timeString)"
                     class="cars-schedules-time-col-item text-400 text-sm"
-                >{{ hour }}</div>
+                >
+                    {{ hour }}
+                </div>
             </div>
             <div v-for="(box, index) in ordersStore.boxSchedulesList" class="cars-schedules-col">
                 <div class="cars-schedules-col-header" :style="{borderRight: ordersStore.carBoxesList.length - 1 == index ? '1px solid var(--primary-100)' : null}">
@@ -26,6 +32,7 @@
                             v-if="scheduleItem.code"
                             class="order"
                             :style="{height: scheduleItem.height - 3 + 'px'}"
+                            @click="openOrder(box.code, scheduleItem.code)"
                         >
                             {{ scheduleItem.timeStart }} - {{ scheduleItem.timeEnd }}
                             <div class="mt-1 text-color-secondary">
@@ -81,7 +88,14 @@ export default {
         },
         openCreateOrderForm() {
             this.visibleCreateForm = true;
-            this.$refs['create-order-form'].setCell(this.focusedCell)
+            this.$refs['create-order-form'].clearOrderData();
+            this.$refs['create-order-form'].setCell(this.focusedCell);
+        },
+        openOrder(carBoxcode, orderCode) {
+            const order = this.ordersStore.getOrderByCode(carBoxcode, orderCode);
+            const carBox = this.ordersStore.getCarBoxByCode(carBoxcode);
+            this.visibleCreateForm = true;
+            this.$refs['create-order-form'].setOrderData(order, carBox);
         }
     },
     computed: {
@@ -108,9 +122,7 @@ export default {
 .cars-schedules-col-header {
     width: 100%;
     height: 40px;
-    border: 1px solid var(--primary-100);
-    border-bottom: 0px;
-    border-right: 0px;
+    border-left: 1px solid var(--primary-100);
     display: flex;
     justify-content: start;
     align-items: center;
@@ -132,12 +144,13 @@ export default {
     justify-content: center;
     /* align-items: center; */
 }
+.cars-schedules-time-col-item:nth-child(2) {
+    border-top: 1px solid var(--primary-100);
+}
 .cars-schedules-time-col-item {
     height: 100px;
-    margin-right: 5px;
-}
-.cars-schedules-time-col {
-    margin-top: 40px;
+    padding-right: 5px;
+    padding-left: 10px;
 }
 .create-container {
     border-radius: 5px;
@@ -159,6 +172,6 @@ export default {
     box-shadow: 0px 0px 3px black;
     cursor: pointer;
     position: relative;
-    z-index: 1111;
+    z-index: 11;
 }
 </style>

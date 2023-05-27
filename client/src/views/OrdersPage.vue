@@ -24,15 +24,15 @@
             <div>asdsad11</div>
             <p-tab-panel>
                 <template #header>
-                    <i class="pi pi-table mr-1"></i>
-                    <span>Заявки</span>
+                    <i class="pi pi-list mr-1"></i>
+                    <span>Список</span>
                 </template>
                 <requests-table/>
             </p-tab-panel>
             <p-tab-panel>
                 <template #header>
                     <i class="pi pi-calendar mr-1"></i>
-                    <span>Посты</span>
+                    <span>Доска</span>
                 </template>
                 <work-schedule/>
             </p-tab-panel>
