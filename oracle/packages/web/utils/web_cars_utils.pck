@@ -17,6 +17,11 @@ function save_car
     p_vin           in varchar2
 ) return number;
 
+procedure delete_car
+(
+    p_code in number
+);
+
 end web_cars_utils;
 /
 create or replace package body web_cars_utils is
@@ -70,5 +75,18 @@ begin
     end if;
     return v_code;
 end save_car;
+
+procedure delete_car
+(
+    p_code in number
+)
+is
+begin
+    delete
+    from
+        car t
+    where
+        t.code = p_code;
+end delete_car;
 end web_cars_utils;
 /

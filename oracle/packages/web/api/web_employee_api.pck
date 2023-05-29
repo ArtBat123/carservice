@@ -20,6 +20,11 @@ function save_employee
     p_payload in varchar2 default null
 ) return clob;
 
+procedure delete_employee
+(
+    p_payload in varchar2 default null
+);
+
 end web_employee_api;
 /
 create or replace package body web_employee_api is
@@ -79,6 +84,21 @@ begin
     v_result.put('code', v_code);
     return v_result.to_clob;
 end save_employee;
+
+procedure delete_employee
+(
+    p_payload in varchar2 default null
+)
+is
+    v_data    json_object_t := json_object_t.parse(p_payload);
+    v_code    number        := v_data.get_Number('code');
+begin
+    delete
+    from 
+        employee t
+    where
+        t.code = v_code;
+end delete_employee;
 
 end web_employee_api;
 /

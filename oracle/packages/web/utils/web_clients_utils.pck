@@ -89,8 +89,8 @@ begin
     if p_code is null then
         v_code := obj_seq.nextval; 
         insert into
-            client(code, first_name, last_name, middle_name, phone, birthday)
-        values (v_code, p_first_name, p_last_name, p_middle_name, p_phone, p_birthday);
+            client(code, first_name, last_name, middle_name, phone, birthday, create_date)
+        values (v_code, p_first_name, p_last_name, p_middle_name, p_phone, p_birthday, sysdate);
     else
         v_code := p_code;
         update

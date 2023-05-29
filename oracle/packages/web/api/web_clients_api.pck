@@ -42,12 +42,13 @@ function save_client
     p_payload in varchar2 default null
 ) return clob
 is
-    v_data       json_object_t := json_object_t.parse(p_payload);
-    v_cars       json_array_t  := json_array_t(v_data.get('addedCars'));
-    v_result     json_object_t := json_object_t();
-    v_cars_codes json_array_t  := json_array_t();
-    v_code       number;
-    v_car_code   number; 
+    v_data         json_object_t := json_object_t.parse(p_payload);
+    v_cars         json_array_t  := json_array_t(v_data.get('addedCars'));
+    v_deleted_cars json_array_t  := json_array_t(v_data.get('deletedCarsCode'));
+    v_result       json_object_t := json_object_t();
+    v_cars_codes   json_array_t  := json_array_t();
+    v_code         number;
+    v_car_code     number; 
 begin
     v_code := web_clients_utils.save_client
         (
@@ -70,6 +71,10 @@ begin
             json_object_t(v_cars.get(i)).get_String('vin')
         );
         v_cars_codes.append(v_car_code);
+    end loop;
+    -- Удаляем авто клиенту, если нужно
+    for i in 0..v_deleted_cars.get_size - 1 loop
+        web_cars_utils.delete_car(v_deleted_cars.get_Number(i));
     end loop;
     v_result.put('carsCodes', v_cars_codes);
     v_result.put('code', v_code);

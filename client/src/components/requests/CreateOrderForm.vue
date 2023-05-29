@@ -12,17 +12,25 @@
         <div class="p-fluid">
             <div class="field">
                 <label>Клиент</label>
-                <p-auto-complete
-                    v-model="client"
-                    :suggestions="filteredClients"
-                    forceSelection
-                    completeOnFocus
-                    optionLabel="fullName"
-                    dropdown
-                    :delay="0"
-                    placeholder="Выберите клиента"
-                    @complete="searchClient"
-                />
+                <div class="flex">
+                    <p-auto-complete
+                        v-model="client"
+                        :suggestions="filteredClients"
+                        forceSelection
+                        completeOnFocus
+                        optionLabel="fullName"
+                        dropdown
+                        :delay="0"
+                        placeholder="Выберите клиента"
+                        style="width: 100%; margin-right: 5px;"
+                        @complete="searchClient"
+                    />
+                    <p-button
+                        icon="pi pi-plus"
+                        v-tooltip="'Добавить клиента'"
+                        @click="save"
+                    ></p-button>
+                </div>
             </div>
             <div class="field">
                 <label>Автомобиль</label>

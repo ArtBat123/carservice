@@ -8,6 +8,6 @@ create table client
     full_name     varchar2(302 char) generated always as (last_name || ' ' || first_name || ' ' || middle_name),
     birthday      date,
     phone         number(11)         not null,
-    start_date    date               not null,
+    create_date   date               not null, -- Дата создания
     constraint client_pk primary key (code)
 );

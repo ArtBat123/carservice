@@ -37,6 +37,10 @@ export const useEmployeesStore = defineStore('employees', {
                 employee.employmentDate = dateToDayString(new Date());
                 this.employees.push(employee);
             }
+        },
+        async deleteEmployee(employee) {
+            await ReqExec.delete('rpc/web_employee_api/delete_employee', {code: employee.code});
+            this.employees = this.employees.filter(item => item.code !== employee.code);
         }
     },
 });

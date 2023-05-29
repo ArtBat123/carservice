@@ -109,7 +109,6 @@ export default {
     },
     methods: {
         saveEmployee() {
-            console.log(this.employee);
             this.employeesStore.saveEmployee(this.employee);
             this.$emit('close');
         }

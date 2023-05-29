@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia';
 import ReqExec from '@/services/ReqExec';
 import WarehouseItem from '@/model/WarehouseItem';
+import { parsPhoneNumber } from '@/utils/utils';
+import Client from '@/model/Client';
+import { dateToDayString } from '@/utils/DateUtils';
 
 export const useClientsStore = defineStore('clients', {
     state: () => ({
@@ -20,22 +23,19 @@ export const useClientsStore = defineStore('clients', {
         async getClients() {
             this.clients = await ReqExec.get('rpc/web_clients_api/get_clients');
         },
-        async saveClient(client) {
-            const payload = {...client};
-            payload.phone = payload.phone.replace(/[+,(,),-]/g, '');
-            if (!payload.addedCars) {
-                payload.addedCars = [];
-            }
-            
-            const response = await ReqExec.post('rpc/web_clients_api/save_client', payload);
-            const newClient = {...payload};
-            newClient.code = response.code;
-            newClient.fullName = `${newClient.lastName} ${newClient.firstName} ${newClient.middleName}`;
-            if (client.code) {
-                let ind = this.clients.findIndex(item => item.code === client.code);
-                this.clients[ind] = newClient;
+        async saveClient(data) {
+            const client = new Client(data);
+            client.phone = parsPhoneNumber(data.phone);
+            const response = await ReqExec.post('rpc/web_clients_api/save_client', {...client, addedCars: data.addedCars, deletedCarsCode: data.deletedCarsCode});
+            const addedCars = client.cars.filter(item => item.code === null);
+            addedCars.forEach((item, index) => item.code = response.carsCodes[index])
+            if (data.code) {
+                const foundClientIndex = this.clients.findIndex(item => item.code === data.code);
+                this.clients[foundClientIndex] = client;
             } else {
-                this.clients.push(newClient);
+                client.code = response.code;
+                client.createDate = dateToDayString(new Date());
+                this.clients.push(client);
             }
         },
         async deleteClient(client) {

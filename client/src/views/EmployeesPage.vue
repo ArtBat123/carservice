@@ -66,7 +66,7 @@
         </p-data-table>
         <p-context-menu :model="menuModel" ref="cm" />
         <p-dialog
-            v-model:visible="deleteItemsDialog"
+            v-model:visible="showDeleteDialog"
             header="Подтверждение"
         >
             <div class="flex align-items-center">
@@ -74,8 +74,8 @@
                 <span>Вы действительно хотите удалить выбранных сотрудников?</span>
             </div>
             <template #footer>
-                <p-button label="Нет" icon="pi pi-times" class="p-button-text" @click="deleteItemsDialog = false"/>
-                <p-button label="Да" icon="pi pi-check" class="p-button-text" @click="deleteSelectedItems"/>
+                <p-button label="Нет" icon="pi pi-times" class="p-button-text" @click="showDeleteDialog = false"/>
+                <p-button label="Да" icon="pi pi-check" class="p-button-text" @click="deleteEmployee"/>
             </template>
         </p-dialog>
         <p-sidebar
@@ -111,14 +111,11 @@ export default {
     data() {
         return {
             contextMenuSelection: null,
-            deleteItemsDialog: false,
-            deleteItemDialog: false,
-            addingDialog: false,
+            showDeleteDialog: false,
             menuModel: [
-                { label: "Удалить", icon: "pi pi-fw pi-times", command: () => this.deleteEmployee() },
+                { label: "Удалить", icon: "pi pi-fw pi-times", command: () => this.openDeleteDialog() },
                 { label: "Изменить", icon: "pi pi-pencil", command: () => this.openEditEmployee() },
             ],
-            dates: [new Date(), null],
             employee: null,
             filterObj: null,
             visibleSidebar: false,
@@ -127,12 +124,12 @@ export default {
         };
     },
     methods: {
-        log(a) {
-            console.log(a);
+        openDeleteDialog() {
+            this.showDeleteDialog = true;
         },
         deleteEmployee() {
-            this.clientsStore.deleteClient(this.contextMenuSelection);
-            this.deleteItemDialog = false;
+            this.employeesStore.deleteEmployee(this.contextMenuSelection);
+            this.showDeleteDialog = false;
         },
         initFilter() {
             this.filterObj = {
