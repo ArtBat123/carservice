@@ -35,6 +35,9 @@ export function getTimeOfDateString(dateString) {
 export function getDateOfString(dateString) {
     const [date, time] = dateString.split(' ');
     const [day, month, year] = date.split('.');
-    const [hour, minute, second] = time.split(':');
+    let [hour, minute, second] = time.split(':');
+    if (!second) {
+        second = 0;
+    }
     return new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second));
 }

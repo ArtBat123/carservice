@@ -10,6 +10,9 @@ function get_box_schedules
     p_date in date
 ) return sys_refcursor;
 
+function get_orders
+    return sys_refcursor;
+
 function save_order
 (
     p_code     in number,
@@ -24,7 +27,9 @@ function save_box_schedule
     p_car_box_code in number,
     p_date_start   date,
     p_date_end     date,
-    p_car_code     number
+    p_car_code     number,
+    p_status       varchar2,
+    p_order_code   number
 ) return json_object_t;
 
 function get_height_order_block
@@ -32,6 +37,11 @@ function get_height_order_block
     p_date_start date,
     p_date_end   date
 ) return number;
+
+procedure delete_order
+(
+    p_code in number
+);
 end web_order_utils;
 /
 create or replace package body web_order_utils is
@@ -99,6 +109,7 @@ begin
                         'timeString'      value cb.time_string,
                         'hourEnd'         value extract(hour from cast(bs.date_end as timestamp)),
                         'code'            value bs.code,
+                        'orderCode'       value o.code,
                         'dateStart'       value to_char(bs.date_start, 'dd.mm.yyyy hh24:mi:ss'),
                         'dateEnd'         value to_char(bs.date_end, 'dd.mm.yyyy hh24:mi:ss'),
                         'timeStart'       value to_char(bs.date_start, 'hh24:mi'),
@@ -150,6 +161,47 @@ begin
     return v_result;
 end get_box_schedules;
 
+function get_orders
+    return sys_refcursor
+is
+    v_result sys_refcursor;
+begin
+    open v_result for
+        select
+            o.code,
+            bs.code as box_schedule_code,
+            json_object
+            (
+                'code'     value cl.code,
+                'fullName' value cl.first_name || ' ' || cl.last_name || ' ' || cl.middle_name
+            ) as client,
+            json_object
+            (
+                'code'     value c.code,
+                'fullName' value c.brand || ' ' || c.model || ' ' || c.car_number
+            ) as car,
+            json_object
+            (
+                'code'     value cb.code,
+                'name'     value cb.name
+            ) as car_box,
+            to_char(bs.date_start, 'dd.mm.yyyy hh24:mi') as date_start,
+            to_char(bs.date_end, 'dd.mm.yyyy hh24:mi')   as date_end,
+            to_char(o.create_date, 'dd.mm.yyyy hh24:mi') as create_date,
+            o.status
+        from
+            orders o
+            join car c
+                on o.car_code = c.code
+            join client cl
+                on cl.code = c.client_code
+            join box_schedule bs
+                on bs.order_code = o.code
+            join car_box cb
+                on cb.code = bs.car_box_code;
+    return v_result;
+end get_orders;
+
 function save_order
 (
     p_code     in number,
@@ -182,15 +234,17 @@ function save_box_schedule
     p_car_box_code in number,
     p_date_start   date,
     p_date_end     date,
-    p_car_code     number
+    p_car_code     number,
+    p_status       varchar2,
+    p_order_code   number
 ) return json_object_t
 is
     v_code       number := null;
     v_order_code number := null;
     v_result     json_object_t := json_object_t();
 begin
+    v_order_code := save_order(p_order_code, p_car_code, p_status);
     if p_code is null then
-        v_order_code := save_order(null, p_car_code, 'В работе');
         v_code := obj_seq.nextval; 
         insert into box_schedule
         values (v_code, p_car_box_code, v_order_code, p_date_start, p_date_end);
@@ -208,5 +262,24 @@ begin
     v_result.put('orderCode', v_order_code);
     return v_result;
 end save_box_schedule;
+
+procedure delete_order
+(
+    p_code in number
+)
+is
+begin
+    delete
+    from
+        box_schedule t
+    where
+        t.order_code = p_code;
+    --
+    delete
+    from
+        orders t
+    where
+        t.code = p_code;
+end delete_order;
 end web_order_utils;
 /

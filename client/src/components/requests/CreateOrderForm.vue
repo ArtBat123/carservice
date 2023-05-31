@@ -5,6 +5,7 @@
         class="p-sidebar-md"
         :visible="modelValue"
         @update:visible="$emit('update:modelValue', e)"
+        @hide="clearOrderData"
     >
         <template #header>
             <h3 class="pl-3">Информация о заказе</h3>
@@ -28,7 +29,7 @@
                     <p-button
                         icon="pi pi-plus"
                         v-tooltip="'Добавить клиента'"
-                        @click="save"
+                        @click="isOpenedClientForm = true"
                     ></p-button>
                 </div>
             </div>
@@ -80,6 +81,7 @@
                     placeholder="Авто-бокс"
                 />
             </div>
+            
         </div>
         <div>
             <p-button
@@ -96,22 +98,40 @@
             ></p-button>
         </div>
     </p-sidebar>
+    <p-sidebar
+        v-model:visible="isOpenedClientForm"
+        :baseZIndex="10001"
+        position="right"
+        class="p-sidebar-md"
+    >
+        <template #header>
+            <h3 class="pl-3">Информация о клиенте</h3>
+        </template>
+        <client-form
+            :initialClient="null"
+            @close="isOpenedClientForm = false"
+        ></client-form>
+    </p-sidebar>
 </template>
 <script>
 import { useClientsStore } from '@/store/clients';
 import { useOrdersStore } from '@/store/orders';
 import { mapStores } from 'pinia';
 import { dateToString, getDateOfString } from '@/utils/DateUtils';
+import ClientForm from '@/components/client/ClientForm.vue';
 
 export default {
     name: 'CreateOrderForm',
+    components: {
+        ClientForm,
+    },
     emits: ['update:modelValue'],
     props: {
         modelValue: Boolean,
-        focusedCell: Array,
     },
     data() {
         return {
+            isOpenedClientForm: false,
             client: null,
             car: null,
             filteredClients: null,
@@ -120,6 +140,7 @@ export default {
             status: null,
             carBox: null,
             code: null,
+            orderCode: null,
         };
     },
     methods: {
@@ -136,14 +157,17 @@ export default {
             this.endWork = new Date(this.ordersStore.date.setHours(hour + 1, minute));
         },
         setOrderData(order, carBox) {
-            const {client, car, dateStart, dateEnd, status, code} = order;
+            const {client, car, dateStart, dateEnd, status, code, orderCode} = order;
             this.code = code;
             this.client = this.clientsStore.getClientByCode(client.code);
             this.car = this.client.cars.find(item => item.code === car.code);
+            console.log(dateStart);
+            console.log(getDateOfString(dateStart));
             this.startWork = getDateOfString(dateStart);
             this.endWork = getDateOfString(dateEnd);
             this.status = status;
-            this.carBox = carBox;
+            this.carBox = this.ordersStore.carBoxesList.find(item => item.code === carBox.code);
+            this.orderCode = orderCode;
         },
         clearOrderData() {
             this.code = null;
@@ -153,16 +177,21 @@ export default {
             this.endWork = null;
             this.status = null;
             this.carBox = null;
+            this.orderCode = null;
         },
         async save() {
             const order = {
                 code: this.code,
-                carBoxCode: this.carBox.code,
+                carBox: this.carBox,
                 dateStart: dateToString(this.startWork),
                 dateEnd: dateToString(this.endWork),
-                carCode: this.car.code,
+                car: this.car,
+                client: this.client,
+                status: this.status,
+                orderCode: this.orderCode,
             };
-            await this.ordersStore.createOrder(order);
+            await this.ordersStore.saveOrder(order);
+            await this.ordersStore.getOrders();
             await this.ordersStore.getBoxSchedules();
             this.$emit('update:modelValue', false)
         }
@@ -171,6 +200,7 @@ export default {
         ...mapStores(useClientsStore, useOrdersStore),
     },
     mounted() {
+        console.log(1);
         this.clientsStore.getClients();
         this.ordersStore.getCarBoxes();
     }

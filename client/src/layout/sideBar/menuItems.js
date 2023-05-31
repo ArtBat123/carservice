@@ -43,4 +43,10 @@ export default [
             },
         ],
     },
+    {
+        key: 'settings',
+        label: 'Параметры',
+        icon: 'pi pi-cog',
+        to: '/settings'
+    }
 ];
