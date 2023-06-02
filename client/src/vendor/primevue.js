@@ -192,7 +192,7 @@ export default function regPrimeVue(app) {
     app.component("PToolbar", Toolbar);
     app.component("PToggleButton", ToggleButton);
     app.component("PTree", Tree);
-    app.component("PTreeSelect", TreeSelect);
+    app.component("PTreeSelect", TreeSelect); 
     app.component("PTreeTable", TreeTable);
     app.component("PTriStateCheckbox", TriStateCheckbox);
     app.component("PVirtualScroller", VirtualScroller);

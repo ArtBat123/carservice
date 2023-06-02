@@ -1,5 +1,5 @@
 <template>
-    <div class="card">
+    <div>
         <p-toolbar>
             <template #start>
                 <div class="text-6xl font-bold mr-4">Сотрудники</div>

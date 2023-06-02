@@ -41,6 +41,10 @@ export default [
                 label: 'Сотрудники',
                 to: '/employees'
             },
+            {
+                label: 'Услуги',
+                to: '/services'
+            }
         ],
     },
     {

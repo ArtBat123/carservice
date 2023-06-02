@@ -60,7 +60,6 @@
         </div>
         <create-order-form
             v-model="visibleCreateForm"
-            :focusedCell="focusedCell"
             ref="create-order-form"
         />
     </div>

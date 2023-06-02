@@ -81,7 +81,20 @@
                     placeholder="Авто-бокс"
                 />
             </div>
-            
+            <div class="text-xl field flex align-items-center">
+                <div class="mr-4">Заказ-наряд:</div>
+                <p-chip>
+                    <div class="p-2">
+                        <span
+                            class="text-primary hover:underline cursor-pointer"
+                            @click="visiblePurchaseOrder = true"
+                        >
+                            №123
+                        </span>
+                        <span class="ml-2">Сумма: 14503₽</span>
+                    </div>
+                </p-chip>
+            </div>
         </div>
         <div>
             <p-button
@@ -112,6 +125,9 @@
             @close="isOpenedClientForm = false"
         ></client-form>
     </p-sidebar>
+    <purchase-order-dialog
+        v-model="visiblePurchaseOrder"
+    />
 </template>
 <script>
 import { useClientsStore } from '@/store/clients';
@@ -119,11 +135,13 @@ import { useOrdersStore } from '@/store/orders';
 import { mapStores } from 'pinia';
 import { dateToString, getDateOfString } from '@/utils/DateUtils';
 import ClientForm from '@/components/client/ClientForm.vue';
+import PurchaseOrderDialog from "@/components/requests/PurchaseOrderDialog.vue";
 
 export default {
     name: 'CreateOrderForm',
     components: {
         ClientForm,
+        PurchaseOrderDialog,
     },
     emits: ['update:modelValue'],
     props: {
@@ -131,6 +149,7 @@ export default {
     },
     data() {
         return {
+            visiblePurchaseOrder: false,
             isOpenedClientForm: false,
             client: null,
             car: null,

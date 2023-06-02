@@ -43,7 +43,6 @@
     </div>
     <create-order-form
         v-model="visibleOrderForm"
-        :focusedCell="focusedCell"
         ref="create-order-form"
     />
     <p-context-menu :model="menuModel" ref="cm" />

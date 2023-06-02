@@ -84,6 +84,9 @@ export default {
     methods: {
         addCategory() {
             this.productsAndCategoriesStore.addCategory(this.newCategory);
+        },
+        log(e) {
+            console.log(e);
         }
     },
 
