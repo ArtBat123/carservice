@@ -7,29 +7,22 @@
                     label="Добавить"
                     icon="pi pi-plus"
                 />
-                <p-button
-                    @click="deleteItemsDialog = true"
-                    label="Удалить"
-                    icon="pi pi-trash"
-                    class="ml-3"
-                />
             </template>
             <template #end>
-                <span class="p-input-icon-left p-input-icon-right">
+                <span class="p-input-icon-left ml-4">
                     <i class="pi pi-search"></i>
                     <p-input-text
+                        v-model="filterObj['global'].value"
                         placeholder="Поиск"
+                        class="p-inputtext-sm"
                     ></p-input-text>
-                    <i
-                        class="pi pi-filter-slash cursor-pointer"
-                        @click="initFilter"
-                    ></i>
                 </span>
             </template>
         </p-toolbar>
         <p-data-table
             :value="ordersStore.orderList"
             v-model:contextMenuSelection="contextMenuSelection"
+            v-model:filters="filterObj"
             @rowContextmenu="onRowContextMenu"
         >
             <p-column field="client.fullName" header="Клиент" :sortable="true"></p-column>
@@ -65,6 +58,7 @@
 import { mapStores } from 'pinia';
 import { useOrdersStore } from "@/store/orders.js";
 import CreateOrderForm from "@/components/requests/CreateOrderForm.vue";
+import { FilterMatchMode } from 'primevue/api';
 
 export default {
     name: 'RequestsTable',
@@ -80,6 +74,9 @@ export default {
                 { label: "Удалить", icon: "pi pi-fw pi-times", command: () => this.openDeleteDialog() },
                 { label: "Изменить", icon: "pi pi-pencil", command: () => this.openEditOrder() },
             ],
+            filterObj: {
+                global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            },
         };
     },
     methods: {

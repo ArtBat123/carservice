@@ -1,9 +1,9 @@
 <template>
     <div class="p-card" style="max-height: calc(100vh - 5rem);">
         <div class="flex justify-content-between align-items-center">
-            <h3 class="ml-4">Заявки</h3>
+            <div class="ml-4 text-4xl font-bold">Заявки</div>
             <div style="position: relative;">
-                <div style="position: relative; top: 50px; z-index: 111;">
+                <div v-if="activePanel == 1" style="position: relative; top: 50px; z-index: 111;">
                     <i
                         class="pi pi-angle-left calendar-btn"
                         @click="calendarBtnClick(-1)"
@@ -20,8 +20,12 @@
                 </div>
             </div>
         </div>
-        <p-tab-view class="tabview-custom" ref="tabview" lazy>
-            <div>asdsad11</div>
+        <p-tab-view
+            v-model:activeIndex="activePanel"
+            class="tabview-custom"
+            ref="tabview"
+            lazy
+        >
             <p-tab-panel>
                 <template #header>
                     <i class="pi pi-list mr-1"></i>
@@ -55,6 +59,7 @@ export default {
 
     data() {
         return {
+            activePanel: 0,
         }
     },
 
@@ -79,19 +84,6 @@ export default {
 :deep(.p-calendar-w-btn) {
     border: none !important;
     box-shadow: none !important;
-}
-:deep(.p-inputtext.p-component) {
-    cursor: pointer !important;
-    caret-color: transparent; 
-    text-align: center;
-    padding: 0;
-}
-:deep(.p-inputtext.p-component:hover) {
-    color: var(--primary-color);
-}
-:deep(.p-inputtext:enabled:focus) {
-    box-shadow: none !important;
-    color: var(--primary-color);
 }
 .calendar-btn {
     color: var(--surface-400);

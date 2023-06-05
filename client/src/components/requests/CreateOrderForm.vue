@@ -82,18 +82,23 @@
                 />
             </div>
             <div class="text-xl field flex align-items-center">
-                <div class="mr-4">Заказ-наряд:</div>
-                <p-chip>
+                <div class="mr-4">Заказ-наряды:</div>
+                <p-chip v-for="purchaseOrderCode in PurchaseOrder">
                     <div class="p-2">
                         <span
                             class="text-primary hover:underline cursor-pointer"
-                            @click="visiblePurchaseOrder = true"
+                            @click="openPurchaseOrder(purchaseOrderCode)"
                         >
-                            №123
+                            №{{ purchaseOrderCode }}
                         </span>
-                        <span class="ml-2">Сумма: 14503₽</span>
+                        <!-- <span class="ml-2">Сумма: 14503₽</span> -->
                     </div>
                 </p-chip>
+                <p-button
+                    icon="pi pi-plus"
+                    class="p-button-text p-button-rounded"
+                    @click="openPurchaseOrder(null)"
+                ></p-button>
             </div>
         </div>
         <div>
@@ -127,6 +132,7 @@
     </p-sidebar>
     <purchase-order-dialog
         v-model="visiblePurchaseOrder"
+        :purchaseOrderCode="purchaseOrderCode"
     />
 </template>
 <script>
@@ -160,11 +166,11 @@ export default {
             carBox: null,
             code: null,
             orderCode: null,
+            purchaseOrderCode: null,
         };
     },
     methods: {
         searchClient(e) {
-            console.log(e);
             const substring = e.query.toLowerCase();
             this.filteredClients = this.clientsStore.clients.filter(item => item.fullName.toLowerCase().includes(substring)); 
         },
@@ -213,6 +219,10 @@ export default {
             await this.ordersStore.getOrders();
             await this.ordersStore.getBoxSchedules();
             this.$emit('update:modelValue', false)
+        },
+        openPurchaseOrder(purchaseOrderCode) {
+            this.purchaseOrderCode = purchaseOrderCode;
+            this.visiblePurchaseOrder = true;
         }
     },
     computed: {

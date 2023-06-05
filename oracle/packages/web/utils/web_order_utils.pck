@@ -129,7 +129,22 @@ begin
                             (
                                 'code'      value cl.code,
                                 'fullName'  value cl.full_name
+                            ),
+                        'purchase_order_list' value
+                           decode(
+                            (
+                                select json_arrayagg(po.code)
+                                from purchase_order po 
+                                where po.order_code = o.code
+                            ),
+                            null,
+                            json_array(),
+                            (
+                                select json_arrayagg(po.code)
+                                from purchase_order po 
+                                where po.order_code = o.code
                             )
+                           )
                     )
                 )
                 order by
@@ -154,6 +169,9 @@ begin
             left join
                 client cl
                 on cl.code = c.client_code
+--             left join
+--                 purchase_order po
+--                 on po.order_code = o.code
         group by
             cb.code,
             cb.name,

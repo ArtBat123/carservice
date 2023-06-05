@@ -8,6 +8,9 @@ export const useOrdersStore = defineStore('orders', {
         boxSchedulesList: [],
         orderList: [],
         date: new Date(),        // Дата расписания
+        // Данные в заказ наряде
+        servicesList: [],
+        productsList: [],
     }),
 
     getters: {
@@ -23,6 +26,16 @@ export const useOrdersStore = defineStore('orders', {
     },
 
     actions: {
+        addProduct() {
+
+        },
+        addService(data) {
+            data.sum = data.price * data.count;
+            this.servicesList.push(data);
+        },
+        async savePurchaseOrder() {
+
+        },
         async getCarBoxes() {
             this.carBoxesList = await ReqExec.get('rpc/web_car_box_api/get_car_boxes');
         },

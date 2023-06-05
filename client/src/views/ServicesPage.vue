@@ -17,14 +17,13 @@
                         style="height: 40px;"
                     />
                 </div>
-                <div style="width: 600px">
+                <div>
                     <span class="p-input-icon-left ml-4">
                         <i class="pi pi-search"></i>
                         <p-input-text
                             v-model="filterObj['global'].value"
                             placeholder="Поиск"
                             class="p-inputtext-sm"
-                            style="width: 552px;"
                         ></p-input-text>
                     </span>
                 </div>
@@ -67,6 +66,19 @@
     <group-form-dialog
         v-model="groupFormDialog"
     />
+    <p-dialog
+        v-model:visible="deleteDialog"
+        header="Подтверждение"
+    >
+        <div class="flex align-items-center">
+            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+            <span>Вы действительно хотите удалить?</span>
+        </div>
+        <template #footer>
+            <p-button label="Нет" icon="pi pi-times" class="p-button-text" @click="deleteDialog = false"/>
+            <p-button label="Да" icon="pi pi-check" class="p-button-text" @click="deleteService"/>
+        </template>
+    </p-dialog>
 </template>
 <script>
 import GroupFormDialog from '@/components/services/GroupFormDialog.vue';
@@ -88,10 +100,11 @@ export default {
                 global: { value: null, matchMode: FilterMatchMode.CONTAINS },
             },
             menuModel: [
-                { label: "Удалить", icon: "pi pi-fw pi-times", command: () => this.deleteService() },
+                { label: "Удалить", icon: "pi pi-fw pi-times", command: () => {this.deleteDialog = true} },
                 { label: "Изменить", icon: "pi pi-pencil", command: () => this.openEditService() },
             ],
             service: null,
+            deleteDialog: false,
         };
     },
     methods: {
@@ -103,9 +116,10 @@ export default {
         onRowContextMenu(event) {
             this.$refs.cm.show(event.originalEvent);
         },
-        deleteService() {
-            this.servicesStore.deleteService(this.contextMenuSelection);
+        async deleteService() {
+            await this.servicesStore.deleteService(this.contextMenuSelection);
             this.servicesStore.getServicesByGroup();
+            this.deleteDialog = false;
         },
         openEditService() {
             this.service = this.contextMenuSelection;
