@@ -6,7 +6,7 @@
         modal
         @update:visible="$emit('update:modelValue', e)"
     >
-        <div :style="{ width: '80vw', height: '75vh' }">
+        <div :style="{ width: '80vw', height: '70vh' }">
             <p-tab-view>
                 <p-tab-panel header="Услуги">
                     <services-list/>
@@ -18,6 +18,20 @@
                     
                 </p-tab-panel>
             </p-tab-view>
+        </div>
+        <div>
+            <p-button
+                label="Закрыть"
+                icon="pi pi-times"
+                class="p-button-text"
+                @click="closeDialog"
+            ></p-button>
+            <p-button
+                label="Сохранить"
+                icon="pi pi-check"
+                class="p-button-text"
+                @click="savePurchaseOrder"
+            ></p-button>
         </div>
     </p-dialog>
 </template>
@@ -33,16 +47,37 @@ export default {
     props: {
         modelValue: Boolean,
         purchaseOrderCode: Number,
+        orderCode: Number,
     },
     emits: ["update:modelValue"],
     data() {
         return {};
     },
+    methods: {
+        closeDialog() {
+            this.ordersStore.productsList = [];
+            this.ordersStore.servicesList = [];
+            this.$emit('update:modelValue', false);
+        },
+        savePurchaseOrder() {
+            this.ordersStore.savePurchaseOrder({
+                orderCode: this.orderCode,
+                products: this.ordersStore.productsList,
+                services: this.ordersStore.servicesList,
+            });
+            this.closeDialog();
+        }
+    },
     computed: {
         ...mapStores(useOrdersStore),
     },
+    watch: {
+        purchaseOrderCode(newCode) {
+            this.ordersStore.getPurchaseOrderData(newCode);
+        }
+    },
     created() {
-        console.log(111);
+        this.ordersStore.getPurchaseOrderData(this.purchaseOrderCode);
     }
 };
 </script>

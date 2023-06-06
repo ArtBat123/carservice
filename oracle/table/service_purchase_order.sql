@@ -6,5 +6,5 @@ create table service_purchase_order
     count                    number,
     constraint service_purchase_order_pk primary key (code),
     constraint service_purchase_order_fk1 foreign key (service_code) references service(code),
-    constraint service_purchase_order_fk2 foreign key (service_code) references purchase_order(code)
+    constraint service_purchase_order_fk2 foreign key (purchase_order_code) references purchase_order(code)
 );

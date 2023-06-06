@@ -24,6 +24,15 @@ procedure delete_order
 (
     p_payload in varchar2
 );
+function save_purchase_order
+(
+    p_payload in varchar2
+) return clob;
+
+function get_purchase_order
+(
+    p_payload in varchar2
+) return clob;
 end web_order_api;
 /
 create or replace package body web_order_api is
@@ -88,6 +97,79 @@ begin
         p_code  => v_data.get_Number('code')
     );
 end delete_order;
+
+
+function get_purchase_order
+(
+    p_payload in varchar2
+) return clob
+is
+    v_code number := json_object_t.parse(p_payload).get_number('code');
+begin
+    return web_utils.cursor_row_to_json_object_clob
+        (
+            p_cursor     => web_order_utils.get_purchase_order(v_code),
+            p_structure  => '{"products": "json_element", "services": "json_element"}'
+        );
+end get_purchase_order;
+
+
+function save_purchase_order
+(
+    p_payload in varchar2
+) return clob
+is
+    v_data           json_object_t  := json_object_t.parse(p_payload);
+    v_order_code     number         := v_data.get_Number('orderCode');
+    v_products_list  json_array_t   := v_data.get_Array('products');
+    v_services_list  json_array_t   := v_data.get_Array('services');
+    v_purchase_order_code         number;
+    v_product_purchase_order_code number;
+    v_service_purchase_order_code number;
+    v_product        json_object_t;
+    v_service        json_object_t;
+    v_result         json_object_t := json_object_t();
+    --
+    v_product_code   number;
+    v_product_count  number;
+    --
+    v_service_code   number;
+    v_service_count  number;
+begin
+    v_purchase_order_code := web_order_utils.save_purchase_order(v_order_code);
+     
+    for i in 0..v_products_list.get_size -1 loop
+        v_product_purchase_order_code := obj_seq.nextval;
+        v_product := json_object_t(v_products_list.get(i));
+        v_product_code  := v_product.get_Number('code');
+        v_product_count := v_product.get_Number('count');
+        insert into product_purchase_order(code, product_code, purchase_order_code, count)
+        values
+        (
+            v_product_purchase_order_code,
+            v_product_code,
+            v_purchase_order_code,
+            v_product_count
+        );
+    end loop;
+    --
+    for i in 0..v_services_list.get_size -1 loop
+        v_service_purchase_order_code := obj_seq.nextval;
+        v_service := json_object_t(v_services_list.get(i));
+        v_service_code  := v_service.get_Number('code');
+        v_service_count := v_service.get_Number('count');
+        insert into service_purchase_order(code,service_code, purchase_order_code, count)
+        values
+        (
+            v_service_purchase_order_code,
+            v_service_code,
+            v_purchase_order_code,
+            v_service_count
+        );
+    end loop;
+    v_result.put('code', v_purchase_order_code);
+    return v_result.to_clob;
+end save_purchase_order;
 
 end web_order_api;
 /

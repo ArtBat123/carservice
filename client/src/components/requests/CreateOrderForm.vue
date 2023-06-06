@@ -83,7 +83,7 @@
             </div>
             <div class="text-xl field flex align-items-center">
                 <div class="mr-4">Заказ-наряды:</div>
-                <p-chip v-for="purchaseOrderCode in PurchaseOrder">
+                <p-chip v-for="purchaseOrderCode in purchaseOrderList">
                     <div class="p-2">
                         <span
                             class="text-primary hover:underline cursor-pointer"
@@ -133,6 +133,7 @@
     <purchase-order-dialog
         v-model="visiblePurchaseOrder"
         :purchaseOrderCode="purchaseOrderCode"
+        :orderCode="orderCode"
     />
 </template>
 <script>
@@ -167,6 +168,7 @@ export default {
             code: null,
             orderCode: null,
             purchaseOrderCode: null,
+            purchaseOrderList: []
         };
     },
     methods: {
@@ -182,7 +184,7 @@ export default {
             this.endWork = new Date(this.ordersStore.date.setHours(hour + 1, minute));
         },
         setOrderData(order, carBox) {
-            const {client, car, dateStart, dateEnd, status, code, orderCode} = order;
+            const {client, car, dateStart, dateEnd, status, code, orderCode, purchaseOrderList} = order;
             this.code = code;
             this.client = this.clientsStore.getClientByCode(client.code);
             this.car = this.client.cars.find(item => item.code === car.code);
@@ -193,6 +195,7 @@ export default {
             this.status = status;
             this.carBox = this.ordersStore.carBoxesList.find(item => item.code === carBox.code);
             this.orderCode = orderCode;
+            this.purchaseOrderList = purchaseOrderList;
         },
         clearOrderData() {
             this.code = null;
@@ -203,6 +206,7 @@ export default {
             this.status = null;
             this.carBox = null;
             this.orderCode = null;
+            this.purchaseOrderList = [];
         },
         async save() {
             const order = {

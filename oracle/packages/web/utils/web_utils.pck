@@ -30,14 +30,16 @@ function cursor_to_json_array_clob
 /* Берет первую строку из p_cursor и возращает её как json_object_t  */
 function cursor_row_to_json_object
     (
-        p_cursor    in sys_refcursor -- Курсор с данными
+        p_cursor    in sys_refcursor, -- Курсор с данными
+        p_structure in clob := '{}'
     ) return json_object_t;
 
 /*****************************************************************************/
 /* Берет первую строку из p_cursor и возращает её как json_object_t.to_clob  */
 function cursor_row_to_json_object_clob
     (
-        p_cursor    in sys_refcursor -- Курсор с данными
+        p_cursor    in sys_refcursor, -- Курсор с данными
+        p_structure in clob := '{}'
     ) return clob;
 
 function get_setting
@@ -177,12 +179,17 @@ end cursor_to_json_array_clob;
 /* Берет первую строку из p_cursor и возращает её как json_object_t  */
 function cursor_row_to_json_object
     (
-        p_cursor    in sys_refcursor -- Курсор с данными
+        p_cursor    in sys_refcursor, -- Курсор с данными
+        p_structure in clob := '{}'
     ) return json_object_t
 is
     v_json_array    json_array_t;
 begin
-    v_json_array := cursor_to_json_array(p_cursor);
+    v_json_array := cursor_to_json_array
+    (
+        p_cursor    => p_cursor,
+        p_structure => p_structure
+    );
     --
     return json_object_t.parse(v_json_array.get(0).to_clob);
 end cursor_row_to_json_object;
@@ -190,12 +197,13 @@ end cursor_row_to_json_object;
 /* Берет первую строку из p_cursor и возращает её как json_object_t.to_clob  */
 function cursor_row_to_json_object_clob
     (
-        p_cursor    in sys_refcursor -- Курсор с данными
+        p_cursor    in sys_refcursor, -- Курсор с данными
+        p_structure in clob := '{}'
     ) return clob
 is
     v_json_object   json_object_t;
 begin
-    v_json_object := cursor_row_to_json_object(p_cursor);
+    v_json_object := cursor_row_to_json_object(p_cursor, p_structure);
     return
         v_json_object.to_clob;
 end cursor_row_to_json_object_clob;

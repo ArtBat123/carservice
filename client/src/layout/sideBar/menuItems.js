@@ -9,24 +9,7 @@ export default [
         key: 'menuItemTables',
         label: 'Склад',
         icon: 'pi pi-box',
-        items: [
-            {
-                label: 'Остатки',
-                to: '/warehouse',
-            },
-            {
-                label: 'Инвентаризации',
-                to: '/fileupload',
-            },
-            {
-                label: 'Оприходования',
-                to: '/excel',
-            },
-            {
-                label: 'Товары и категории',
-                to: '/products-and-categories',
-            },
-        ],
+        to: '/products'
     },
     {
         key: 'menuItemTables',

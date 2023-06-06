@@ -11,14 +11,23 @@
             dropdown
             optionLabel="name"
             style="width: 600px;"
-            @complete="searchService"
+            @complete="searchProduct"
         />
-        <p-input-number
-            v-model="selectedCount"
-            class="p-inputtext-sm ml-2"
-            placeholder="Количество"
-            :useGrouping="false"
-        ></p-input-number>
+        <div class="flex flex-column">
+            <p-input-number
+                v-model="selectedCount"
+                class="p-inputtext-sm ml-2"
+                placeholder="Количество"
+                :useGrouping="false"
+                autofocus
+            />
+            <small
+                v-if="selectedProduct && selectedCount > selectedProduct.count"
+                class="p-error pl-2"
+            >
+                На складе {{ selectedProduct.count }} шт
+            </small>
+        </div>
         <p-button
             icon="pi pi-plus"
             class="p-button-text p-button-rounded ml-4"
@@ -37,7 +46,10 @@
         ></p-button>
     </div>
     <p-data-table
-        :value="ordersStore.servicesList"
+        :value="ordersStore.productsList"
+        class="mt-3"
+        scrollHeight="calc(70vh - 150px)"
+        :scrollable="true"
     >
         <p-column field="name" header="Наименование"></p-column>
         <p-column field="count" header="Количество"></p-column>
@@ -47,6 +59,7 @@
 </template>
 <script>
 import { useOrdersStore } from '@/store/orders';
+import { useProductsStore } from '@/store/products';
 import { mapStores } from 'pinia';
 
 export default {
@@ -63,9 +76,12 @@ export default {
     methods: {
         searchProduct(e) {
             const substring = e.query.toLowerCase();
-            // this.filteredServices = this.servicesStore.servicesList.filter(item => item.name.toLowerCase().includes(substring)); 
+            this.filteredProducts = this.productsStore.productsList.filter(item => item.name.toLowerCase().includes(substring)); 
         },
-        addProduct() {
+        addProducts() {
+            if (!this.selectedProduct || this.selectedCount > this.selectedProduct.count || this.selectedCount <= 0) {
+                return;
+            }
             const payload = {
                 ...this.selectedProduct,
                 count: this.selectedCount,
@@ -83,10 +99,10 @@ export default {
         }
     },
     computed: {
-        ...mapStores(useOrdersStore),
+        ...mapStores(useOrdersStore, useProductsStore),
     },
     created() {
-        // this.servicesStore.getServicesByGroup(1);
+        this.productsStore.getProductsByGroup(1);
     }
 };
 </script>

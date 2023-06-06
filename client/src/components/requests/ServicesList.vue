@@ -38,6 +38,9 @@
     </div>
     <p-data-table
         :value="ordersStore.servicesList"
+        class="mt-3"
+        scrollHeight="calc(70vh - 150px)"
+        :scrollable="true"
     >
         <p-column field="name" header="Наименование"></p-column>
         <p-column field="count" header="Количество"></p-column>

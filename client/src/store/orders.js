@@ -26,15 +26,24 @@ export const useOrdersStore = defineStore('orders', {
     },
 
     actions: {
-        addProduct() {
-
+        addProduct(data) {
+            data.sum = data.price * data.count;
+            this.productsList.push(data);
         },
         addService(data) {
             data.sum = data.price * data.count;
             this.servicesList.push(data);
         },
-        async savePurchaseOrder() {
-
+        async savePurchaseOrder(payload) {
+            await ReqExec.post('rpc/web_order_api/save_purchase_order', payload); //!!!!!
+        },
+        async getPurchaseOrderData(code) {
+            if (code === null) return;
+            const response = await ReqExec.post('rpc/web_order_api/get_purchase_order', {code});
+            console.log(response);
+            console.log(response.products);
+            this.productsList = response.products;
+            this.servicesList = response.services;
         },
         async getCarBoxes() {
             this.carBoxesList = await ReqExec.get('rpc/web_car_box_api/get_car_boxes');

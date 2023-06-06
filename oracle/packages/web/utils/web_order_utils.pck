@@ -42,6 +42,16 @@ procedure delete_order
 (
     p_code in number
 );
+
+function save_purchase_order
+(
+    p_order_code in number
+) return number;
+
+function get_purchase_order
+(
+    p_code in number
+) return sys_refcursor;
 end web_order_utils;
 /
 create or replace package body web_order_utils is
@@ -130,7 +140,7 @@ begin
                                 'code'      value cl.code,
                                 'fullName'  value cl.full_name
                             ),
-                        'purchase_order_list' value
+                        'purchaseOrderList' value
                            decode(
                             (
                                 select json_arrayagg(po.code)
@@ -299,5 +309,66 @@ begin
     where
         t.code = p_code;
 end delete_order;
+
+function save_purchase_order
+(
+    p_order_code in number
+) return number
+is
+    v_code number := obj_seq.nextval;
+begin
+    insert into purchase_order values(v_code, p_order_code);
+    return v_code;
+end save_purchase_order;
+
+function get_purchase_order
+(
+    p_code in number
+) return sys_refcursor
+is
+    v_result sys_refcursor;
+begin
+    open v_result for
+        select
+            po.code,
+            json_arrayagg
+            (
+                json_object
+                (
+                    'name'    value p.name,
+                    'price'   value p.price,
+                    'count'   value ppo.count,
+                    'sum'     value p.price * ppo.count
+                )
+                returning clob
+            ) as products,
+            json_arrayagg
+            (
+                json_object
+                (
+                    'name'   value s.name,
+                    'price'  value s.price,
+                    'count'  value spo.count,
+                    'sum'    value s.price * spo.count
+                )
+                returning clob
+            ) as services
+        from
+            purchase_order po
+            left join product_purchase_order ppo
+                on ppo.purchase_order_code = po.code
+            left join service_purchase_order spo
+                 on spo.purchase_order_code = po.code
+            left join product p
+                 on p.code = ppo.product_code
+            left join service s
+                 on s.code = spo.service_code
+        where
+            po.code = p_code
+        group by
+            po.code;
+    return v_result;
+end get_purchase_order;
+
 end web_order_utils;
 /
