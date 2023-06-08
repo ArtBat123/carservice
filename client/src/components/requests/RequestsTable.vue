@@ -31,7 +31,7 @@
             <p-column field="dateStart" header="Дата начала" :sortable="true"></p-column>
             <p-column field="dateEnd" header="Дата окончания" :sortable="true"></p-column>
             <p-column field="createDate" header="Дата создания" :sortable="true"></p-column>
-            <p-column field="status" header="Статус" :sortable="true"></p-column>
+            <p-column field="status.name" header="Статус" :sortable="true"></p-column>
         </p-data-table>
     </div>
     <create-order-form

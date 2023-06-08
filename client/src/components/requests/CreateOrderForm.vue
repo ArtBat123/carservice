@@ -68,7 +68,8 @@
                 <label>Статус</label>
                 <p-dropdown
                     v-model="status"
-                    :options="['В работе', 'Готов', 'Ожидает']"
+                    optionLabel="name"
+                    :options="ordersStore.statusList"
                     placeholder="Статус"
                 />
             </div>
@@ -97,7 +98,7 @@
                 <p-button
                     icon="pi pi-plus"
                     class="p-button-text p-button-rounded"
-                    @click="openPurchaseOrder(null)"
+                    @click="openNewPurchaseOrder(null)"
                 ></p-button>
             </div>
         </div>
@@ -134,6 +135,7 @@
         v-model="visiblePurchaseOrder"
         :purchaseOrderCode="purchaseOrderCode"
         :orderCode="orderCode"
+        :carBox="carBox"
     />
 </template>
 <script>
@@ -227,15 +229,21 @@ export default {
         openPurchaseOrder(purchaseOrderCode) {
             this.purchaseOrderCode = purchaseOrderCode;
             this.visiblePurchaseOrder = true;
+        },
+        openNewPurchaseOrder() {
+            this.purchaseOrderCode = null;
+            this.ordersStore.servicesList = [];
+            this.ordersStore.productsList = [];
+            this.visiblePurchaseOrder = true;
         }
     },
     computed: {
         ...mapStores(useClientsStore, useOrdersStore),
     },
-    mounted() {
-        console.log(1);
+    created() {
         this.clientsStore.getClients();
         this.ordersStore.getCarBoxes();
+        this.ordersStore.getOrderStatusList();
     }
 };
 </script>

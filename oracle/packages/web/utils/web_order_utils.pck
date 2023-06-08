@@ -17,7 +17,7 @@ function save_order
 (
     p_code     in number,
     p_car_code in number,
-    p_status   in varchar2
+    p_status   in number
 ) return number;
 
 -- Сохраняем сначала заказ, а потом рассписанеи дял него
@@ -28,7 +28,7 @@ function save_box_schedule
     p_date_start   date,
     p_date_end     date,
     p_car_code     number,
-    p_status       varchar2,
+    p_status       number,
     p_order_code   number
 ) return json_object_t;
 
@@ -52,6 +52,9 @@ function get_purchase_order
 (
     p_code in number
 ) return sys_refcursor;
+
+function get_order_status_list
+    return sys_refcursor;
 end web_order_utils;
 /
 create or replace package body web_order_utils is
@@ -124,7 +127,14 @@ begin
                         'dateEnd'         value to_char(bs.date_end, 'dd.mm.yyyy hh24:mi:ss'),
                         'timeStart'       value to_char(bs.date_start, 'hh24:mi'),
                         'timeEnd'         value to_char(bs.date_end, 'hh24:mi'),
-                        'status'          value o.status,
+                        'status'          value
+                            json_object
+                            (
+                                'code'         value os.code,
+                                'name'         value os.name,
+                                'color'        value os.color,
+                                'description'  value os.description
+                            ),
                         'height'          value get_height_order_block(bs.date_start, bs.date_end),
                         'car' value
                             json_object
@@ -179,9 +189,9 @@ begin
             left join
                 client cl
                 on cl.code = c.client_code
---             left join
---                 purchase_order po
---                 on po.order_code = o.code
+            left join
+                order_status os
+                on os.code = o.status_code
         group by
             cb.code,
             cb.name,
@@ -216,7 +226,13 @@ begin
             to_char(bs.date_start, 'dd.mm.yyyy hh24:mi') as date_start,
             to_char(bs.date_end, 'dd.mm.yyyy hh24:mi')   as date_end,
             to_char(o.create_date, 'dd.mm.yyyy hh24:mi') as create_date,
-            o.status
+            json_object
+            (
+                'code'         value os.code,
+                'name'         value os.name,
+                'color'        value os.color,
+                'description'  value os.description
+            ) as status
         from
             orders o
             join car c
@@ -226,7 +242,9 @@ begin
             join box_schedule bs
                 on bs.order_code = o.code
             join car_box cb
-                on cb.code = bs.car_box_code;
+                on cb.code = bs.car_box_code
+            join order_status os
+                on os.code = o.status_code;
     return v_result;
 end get_orders;
 
@@ -234,7 +252,7 @@ function save_order
 (
     p_code     in number,
     p_car_code in number,
-    p_status   in varchar2
+    p_status   in number
 ) return number
 is
     v_code number;
@@ -248,7 +266,7 @@ begin
         update
             orders t
         set
-            t.status = p_status
+            t.status_code = p_status
         where
             t.code = p_code;
     end if;
@@ -263,7 +281,7 @@ function save_box_schedule
     p_date_start   date,
     p_date_end     date,
     p_car_code     number,
-    p_status       varchar2,
+    p_status       number,
     p_order_code   number
 ) return json_object_t
 is
@@ -281,8 +299,9 @@ begin
         update
             box_schedule t
         set
-            t.date_start = p_date_start,
-            t.date_end   = p_date_end
+            t.date_start    = p_date_start,
+            t.date_end      = p_date_end,
+            t.car_box_code  = p_car_box_code
         where
             t.code = p_code;
     end if;
@@ -369,6 +388,23 @@ begin
             po.code;
     return v_result;
 end get_purchase_order;
+
+function get_order_status_list
+    return sys_refcursor
+is
+    v_result sys_refcursor;
+begin
+    open v_result for
+        select
+            t.code,
+            t.name,
+            t.description,
+            t.color
+        from
+            order_status t;
+    return v_result;
+end get_order_status_list;
+
 
 end web_order_utils;
 /

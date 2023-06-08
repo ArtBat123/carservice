@@ -142,7 +142,7 @@ begin
                 p_product_group_code  => 1,
                 p_price               => v_product.get_Number('price'),
                 p_description         => v_product.get_String('description'),
-                p_count               => 0,
+                p_count               => v_product.get_Number('count'),
                 p_vendor_code         => v_product.get_String('vendorCode')
             );
         else

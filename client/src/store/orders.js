@@ -8,6 +8,7 @@ export const useOrdersStore = defineStore('orders', {
         boxSchedulesList: [],
         orderList: [],
         date: new Date(),        // Дата расписания
+        statusList: [],
         // Данные в заказ наряде
         servicesList: [],
         productsList: [],
@@ -23,6 +24,12 @@ export const useOrdersStore = defineStore('orders', {
                 return carBox.schedule.find(item => item.code === orderCode);
             };
         },
+        getBoxSchedule(state) {
+            return (carBoxcode, orderCode) => {
+                const carBox = state.boxSchedulesList.find(item => item.code === carBoxcode);
+                return carBox.schedule.find(item => item.orderCode === orderCode);
+            };
+        },
     },
 
     actions: {
@@ -35,13 +42,13 @@ export const useOrdersStore = defineStore('orders', {
             this.servicesList.push(data);
         },
         async savePurchaseOrder(payload) {
-            await ReqExec.post('rpc/web_order_api/save_purchase_order', payload); //!!!!!
+            const order = this.getBoxSchedule(payload.carBoxCode, payload.orderCode);
+            const response =  await ReqExec.post('rpc/web_order_api/save_purchase_order', payload);
+            order.purchaseOrderList.push(response.code);
         },
         async getPurchaseOrderData(code) {
             if (code === null) return;
             const response = await ReqExec.post('rpc/web_order_api/get_purchase_order', {code});
-            console.log(response);
-            console.log(response.products);
             this.productsList = response.products;
             this.servicesList = response.services;
         },
@@ -55,10 +62,14 @@ export const useOrdersStore = defineStore('orders', {
                 dateStart: order.dateStart,
                 dateEnd: order.dateEnd,
                 carCode: order.car.code,
-                status: order.status,
+                status: order.status.code,
                 orderCode: order.orderCode
             }
+            const currentOrder = this.getOrderByCode(order.carBox.code, order.code);
             await ReqExec.post('rpc/web_order_api/save_box_schedule', payload);
+            if (order.status.name === "Готов" && currentOrder.status.code !== order.status.code) {
+                await ReqExec.post('send_message', {phone: order.client.phone, car: order.car});
+            }
         },
         async deleteOrder(code) {
             await ReqExec.delete('rpc/web_order_api/delete_order', {code});
@@ -70,6 +81,9 @@ export const useOrdersStore = defineStore('orders', {
         },
         async getOrders() {
             this.orderList = await ReqExec.get('rpc/web_order_api/get_orders');
-        }
+        },
+        async getOrderStatusList() {
+            this.statusList = await ReqExec.get('rpc/web_order_api/get_order_status_list'); 
+        },
     },
 });

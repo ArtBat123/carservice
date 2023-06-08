@@ -48,6 +48,7 @@ export default {
         modelValue: Boolean,
         purchaseOrderCode: Number,
         orderCode: Number,
+        carBox: Object,
     },
     emits: ["update:modelValue"],
     data() {
@@ -64,6 +65,7 @@ export default {
                 orderCode: this.orderCode,
                 products: this.ordersStore.productsList,
                 services: this.ordersStore.servicesList,
+                carBoxCode: this.carBox?.code,
             });
             this.closeDialog();
         }

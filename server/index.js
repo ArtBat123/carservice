@@ -2,7 +2,7 @@ import express from 'express';
 import { databaseInit, execute } from './db.js';
 import router from './routes/index.js';
 import cors from 'cors'
-
+import {startBot} from "./telegramBog.js";
 const PORT = 5000;
 const app = express();
 
@@ -13,5 +13,5 @@ async function start() {
     app.use('/api', router);
     app.listen(PORT, () => console.log('Server started'));
 }
-
+startBot();
 start();

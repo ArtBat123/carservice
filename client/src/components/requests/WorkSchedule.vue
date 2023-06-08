@@ -31,10 +31,20 @@
                         <div
                             v-if="scheduleItem.code"
                             class="order"
-                            :style="{height: scheduleItem.height - 3 + 'px'}"
+                            :style="{height: scheduleItem.height - 3 + 'px', backgroundColor: scheduleItem.status.color}"
                             @click="openOrder(box.code, scheduleItem.code)"
                         >
                             {{ scheduleItem.timeStart }} - {{ scheduleItem.timeEnd }}
+                            <div v-if="scheduleItem.purchaseOrderList.length">
+                                Заказ-наряды: 
+                                <span
+                                    v-for="(purchaseOrder, index) in scheduleItem.purchaseOrderList"
+                                    class="hover:underline cursor-pointer"
+                                    @click.stop="openPurchaseOrder(purchaseOrder)"
+                                >
+                                    {{ purchaseOrder + (index == scheduleItem.purchaseOrderList.length - 1 ? '' : ', ') }}
+                                </span>
+                            </div>
                             <div class="mt-1 text-color-secondary">
                                 {{ scheduleItem.client.fullName }}
                             </div>
@@ -62,6 +72,10 @@
             v-model="visibleCreateForm"
             ref="create-order-form"
         />
+        <purchase-order-dialog
+            v-model="visiblePurchaseOrder"
+            :purchaseOrderCode="purchaseOrderCode"
+        />
     </div>
 </template>
 <script>
@@ -69,16 +83,20 @@ import { useOrdersStore } from '@/store/orders';
 import { mapStores } from 'pinia';
 import CreateOrderForm from './CreateOrderForm.vue';
 import { getTimeOfDateString } from '@/utils/DateUtils';
+import PurchaseOrderDialog from './PurchaseOrderDialog.vue';
 export default {
     name: 'WorkSchedule',
 
     components: {
         CreateOrderForm,
+        PurchaseOrderDialog
     },
     data() {
         return {
             focusedCell: [],
             visibleCreateForm: false,
+            visiblePurchaseOrder: false,
+            purchaseOrderCode: null,
         }
     },
     methods: {
@@ -95,6 +113,10 @@ export default {
             const carBox = this.ordersStore.getCarBoxByCode(carBoxcode);
             this.visibleCreateForm = true;
             this.$refs['create-order-form'].setOrderData(order, carBox);
+        },
+        openPurchaseOrder(code) {
+            this.purchaseOrderCode = code;
+            this.visiblePurchaseOrder = true;
         }
     },
     computed: {
@@ -166,7 +188,7 @@ export default {
     height: 95%;
     padding: 5px;
     background-color: var(--yellow-100);
-    border: 3px solid var(--yellow-200);
+    border: 3px solid #dddddd;
     border-radius: 10px;
     box-shadow: 0px 0px 3px black;
     cursor: pointer;
